@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructor Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --ink:#1d2433; --muted:#6b7385;
+    --line:#e3e7ef; --brand:#1f3a68; --brand-soft:#e8eef8; --accent:#f2a900;
+    --danger:#c0392b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:var(--brand);color:#fff;padding:22px 16px}
+  header .inner{max-width:1000px;margin:0 auto}
+  header h1{margin:0;font-size:1.5rem}
+  header p{margin:4px 0 0;opacity:.85;font-size:.95rem}
+  main{max-width:1000px;margin:0 auto;padding:20px 16px 48px}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:20px}
+  .panel summary{cursor:pointer;font-weight:700;color:var(--brand);font-size:1.05rem}
+  .panel[open] summary{margin-bottom:14px}
+  label{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
+  input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:1rem}
+  input:focus{outline:2px solid var(--brand-soft);border-color:var(--brand)}
+  .row{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:14px}
+  .subj-head,.subj-row{display:grid;grid-template-columns:3fr 1fr 1fr auto;gap:8px}
+  .subj-head{font-size:.8rem;color:var(--muted);margin-bottom:4px}
+  .subj-row{margin-bottom:8px}
+  @media(max-width:600px){
+    .row{grid-template-columns:1fr}
+    .subj-head{display:none}
+    .subj-row{grid-template-columns:1fr 1fr auto}
+    .subj-row .s-title{grid-column:1/-1}
+  }
+
+  button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:#fff;padding:9px 14px;color:var(--ink)}
+  .btn-primary{background:var(--brand);color:#fff;border-color:var(--brand);font-weight:600}
+  .btn-ghost{color:var(--brand)}
+  .btn-danger{color:var(--danger)}
+  .btn-x{padding:9px 12px;color:var(--danger)}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .hint{font-size:.85rem;color:var(--muted);margin-top:6px}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .toolbar input{flex:1;min-width:200px}
+  .count{color:var(--muted);font-size:.9rem;margin-bottom:10px}
+
+  /* Filter box */
+  .filter-box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+  .filter-box .f-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .filter-box .f-head h2{margin:0;font-size:1rem;color:var(--brand)}
+  .f-label{font-size:.8rem;color:var(--muted);font-weight:600;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.04em}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{border-radius:999px;padding:6px 12px;font-size:.88rem;border:1px solid var(--line);background:#fff;color:var(--ink);
+        display:inline-flex;align-items:center;gap:6px}
+  .chip .n{font-size:.75rem;color:var(--muted);background:var(--bg);border-radius:999px;padding:0 7px}
+  .chip.active{background:var(--brand);border-color:var(--brand);color:#fff}
+  .chip.active .n{background:rgba(255,255,255,.2);color:#fff}
+  .f-row{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+  @media(max-width:600px){.f-row{grid-template-columns:1fr}}
+  select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:.95rem;background:#fff;color:var(--ink)}
+  .subject-box.dim{opacity:.4}
+
+  /* Instructor cards */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;align-items:start}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:box-shadow .2s}
+  .card.open{box-shadow:0 6px 20px rgba(31,58,104,.12);border-color:#c9d5ea}
+  .card-head{width:100%;border:0;border-radius:0;background:none;text-align:left;padding:16px;
+             display:flex;gap:12px;align-items:center}
+  .card-head:hover{background:#fafbfe}
+  .avatar{width:48px;height:48px;border-radius:50%;background:var(--brand-soft);color:var(--brand);
+          display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;flex-shrink:0}
+  .head-text{flex:1;min-width:0}
+  .head-text h3{margin:0;font-size:1.08rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .dg{display:inline-flex;flex-shrink:0;line-height:0}
+  .dg svg{width:26px;height:26px;display:block}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .badge{border-radius:999px;padding:2px 10px;font-size:.82rem;font-weight:600}
+  .badge.exp{background:#fff6dd;color:#8a6100}
+  .badge.num{background:var(--brand-soft);color:var(--brand)}
+  .chev{color:var(--muted);font-size:1.1rem;transition:transform .2s}
+  .card.open .chev{transform:rotate(180deg)}
+
+  .subjects{display:none;padding:4px 16px 14px;flex-direction:column;gap:8px;border-top:1px solid var(--line)}
+  .card.open .subjects{display:flex}
+  .subjects .title{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:10px}
+  .subject-box{border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:8px;padding:10px 12px;background:#fafbfe}
+  .subject-box .name{font-weight:600;font-size:.95rem}
+  .subject-box .meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;font-size:.85rem;color:var(--muted)}
+  .subject-box .meta b{color:var(--ink)}
+  .subject-box.hit{border-left-color:var(--accent);background:#fffbef}
+  .card-foot{display:flex;gap:8px;justify-content:flex-end;padding-top:6px}
+  .card-foot button{padding:6px 12px;font-size:.88rem}
+  .empty{text-align:center;color:var(--muted);padding:30px;border:2px dashed var(--line);border-radius:12px;grid-column:1/-1}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <h1>Instructor Profile</h1>
+    <p>รายชื่อครูผู้สอน วิชาที่สอน และประสบการณ์ (คลิกที่ชื่อเพื่อดูวิชา)</p>
+  </div>
+</header>
+
+<main>
+  <!-- ฟอร์มเพิ่ม / แก้ไข (พับเก็บได้) -->
+  <details class="panel" id="formPanel">
+    <summary id="formTitle">+ เพิ่ม Instructor</summary>
+    <div class="row">
+      <div>
+        <label for="name">ชื่อ Instructor</label>
+        <input id="name" placeholder="เช่น Dhitaree Pengboon">
+      </div>
+      <div>
+        <label for="aviation">Aviation Field (ปี)</label>
+        <input id="aviation" type="number" min="0" placeholder="เช่น 14">
+      </div>
+    </div>
+
+    <label>วิชาที่สอน</label>
+    <div class="subj-head"><span>Subject</span><span>Aviation (ปี)</span><span>Specific (ปี)</span><span></span></div>
+    <div id="subjectInputs"></div>
+    <button class="btn-ghost" type="button" onclick="addSubjectRow()">+ เพิ่มวิชา</button>
+    <div class="hint">ถ้าเว้นช่อง Aviation ของวิชาไว้ จะใช้ค่า Aviation Field ด้านบนให้อัตโนมัติ</div>
+
+    <div class="actions">
+      <button class="btn-primary" type="button" onclick="saveInstructor()">บันทึก</button>
+      <button type="button" onclick="resetForm()">ล้างฟอร์ม</button>
+    </div>
+  </details>
+
+  <!-- ตัวกรอง -->
+  <section class="filter-box">
+    <div class="f-head">
+      <h2>ตัวกรอง</h2>
+      <button type="button" class="btn-ghost" onclick="clearFilters()">ล้างตัวกรอง</button>
+    </div>
+
+    <div class="f-label">หมวดวิชา</div>
+    <div class="chips" id="catChips"></div>
+
+    <div class="f-row">
+      <div>
+        <div class="f-label">วิชา</div>
+        <select id="subjectSelect" onchange="filters.subject=this.value; render()"></select>
+      </div>
+      <div>
+        <div class="f-label">Specific Field ขั้นต่ำ</div>
+        <select id="yearSelect" onchange="filters.minYears=this.value; render()">
+          <option value="">ทุกระดับ</option>
+          <option value="1">1 ปีขึ้นไป</option>
+          <option value="3">3 ปีขึ้นไป</option>
+          <option value="5">5 ปีขึ้นไป</option>
+          <option value="10">10 ปีขึ้นไป</option>
+          <option value="15">15 ปีขึ้นไป</option>
+          <option value="20">20 ปีขึ้นไป</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- รายชื่อ -->
+  <section>
+    <div class="toolbar">
+      <input id="search" placeholder="ค้นหาชื่อหรือวิชา..." oninput="render()">
+      <button type="button" onclick="toggleAll(true)">เปิดทั้งหมด</button>
+      <button type="button" onclick="toggleAll(false)">ปิดทั้งหมด</button>
+      <button type="button" onclick="exportJSON()">Export JSON</button>
+      <button type="button" onclick="document.getElementById('importFile').click()">Import JSON</button>
+      <input id="importFile" type="file" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+    <div class="count" id="count"></div>
+    <div id="list" class="grid"></div>
+  </section>
+</main>
+
+<script>
+/* ==========================================================
+   ข้อมูลตั้งต้น — แก้ตรงนี้เพื่อให้ทุกคนที่เปิดหน้าเว็บบน GitHub
+   เห็นข้อมูลเดียวกัน
+   รูปแบบวิชา: [ชื่อวิชา, Aviation Field (ปี), Specific Field (ปี)]
+   ใส่ "" ถ้าไม่มีข้อมูล (จะแสดงเป็น "-")
+   ========================================================== */
+const RAW_DATA = [
+  { name: "Dhitaree Pengboon", subjects: [
+    ["Aviation Security Awareness for Non-Security", 14, 9],
+    ["Dangerous Goods Regulations for General Task (Role O)", 14, 3],
+    ["Emergency Response Plan", 14, 9],
+    ["Safety Management System for All operational employees", 14, 4],
+    ["Human Factors for Aviation", 14, 7],
+    ["Dangerous Goods for Processing and Accepting DG Consignment 7.3", 14, 9],
+    ["Dangerous Goods Regulations for Ramp Operations (Role G)", 14, 9],
+    ["Dangerous Goods Regulations for Passenger Services (Role H)", 14, 9],
+    ["Dangerous Goods Regulations for Load Control (Role I)", 14, 9],
+    ["Dangerous Goods Regulations for Oversight Staffs (Role N)", 14, 9],
+    ["Dangerous Goods Regulations for Flight Crew (Role J)", 14, 9],
+    ["Dangerous Goods for General Awareness (Role P)", 14, 9],
+    ["Dangerous Goods Regulations for Flight Operations (Role K)", 14, 9],
+    ["Dangerous Goods for Accepting General Cargo (Role E)", 14, 9]
+  ]},
+  { name: "Ravit Fung", subjects: [
+    ["Dangerous Goods Regulations for General Task (Role O)", 10, 2],
+    ["Emergency Response Plan", 10, 10],
+    ["Emergency Response In-Depth", 10, 10],
+    ["Supervision and Oversight", 7, ""],
+    ["Basic Air Cargo Handling", 7, ""],
+    ["Dangerous Goods for Processing and Accepting DG Consignment 7.3", 10, 2],
+    ["Dangerous Goods Regulations for Ramp Operations (Role G)", 10, 2],
+    ["Dangerous Goods Regulations for Passenger Services (Role H)", 10, 2],
+    ["Dangerous Goods Regulations for Load Control (Role I)", 10, 2],
+    ["Dangerous Goods Regulations for Oversight Staffs (Role N)", 10, 2],
+    ["Dangerous Goods for General Awareness (Role P)", 10, 2],
+    ["Dangerous Goods Regulations for Flight Crew (Role J)", 10, 2],
+    ["Dangerous Goods Regulations for Flight Operations (Role K)", 10, 2],
+    ["Dangerous Goods for Accepting General Cargo (Role E)", 10, 2]
+  ]},
+  { name: "Nattawiporn Saraprateeb", subjects: [
+    ["Dangerous Goods Regulations for General Task (Role O)", 4, 4],
+    ["Emergency Response Plan", 4, 3],
+    ["Safety Management System for All operational employees", 4, 2]
+  ]},
+  { name: "Mingkwan Saengpet", subjects: [
+    ["Dangerous Goods Regulations for General Task (Role O)", 4, 4]
+  ]},
+  { name: "Niphitcha Noppajorn", subjects: [
+    ["Human Factors for Aviation", "", ""]
+  ]},
+  { name: "Paritchaya Yongbuntom", subjects: [
+    ["Airside Driver", 3, 2]
+  ]},
+  { name: "Saharat Moonjit", subjects: [
+    ["Airside Driver", 11, 11],
+    ["Airside Safety", 11, 11],
+    ["Aircraft Handling and Loading", 11, 11],
+    ["Aircraft Ground Movement", 11, 11],
+    ["Aircraft Loading Supervision", 11, 11],
+    ["GSE Operations Group A", 11, 7],
+    ["GSE Operations Group B", 11, 7],
+    ["GSE Operations Group C", 11, 7]
+  ]},
+  { name: "Natapat Hengbunyaphan", subjects: [
+    ["Wheelchair Service Procedure", 3, 3],
+    ["First Aid", 3, 3]
+  ]},
+  { name: "Kanlayarat Chaikam", subjects: [
+    ["Wheelchair Service Procedure", 3, 3],
+    ["First Aid", 3, 3]
+  ]},
+  { name: "Pongkarn Kochai", subjects: [
+    ["Wheelchair Service Procedure", 3, 3],
+    ["First Aid", 3, 3]
+  ]},
+  { name: "Teeraporn Jinadach (Resigned)", subjects: [
+    ["Wheelchair Service Procedure", "", ""],
+    ["First Aid", "", ""]
+  ]},
+  { name: "Natthapat Piyapan", subjects: [
+    ["Aviation Basics", 5, 5]
+  ]},
+  { name: "Areeya Ponsan", subjects: [
+    ["Occupational Disease and Environmental", 4, 5],
+    ["Workplace Safety", 4, 5]
+  ]},
+  { name: "Phornpan Kieojaidee", subjects: [
+    ["Passenger and Baggage", 12, 12],
+    ["Visa and Travel Document", 12, 12]
+  ]},
+  { name: "Ampika Choopaen", subjects: [
+    ["Passenger and Baggage", 22, 22],
+    ["Human Factors for Aviation", 16, 16]
+  ]},
+  { name: "Sirinapa Aree", subjects: [
+    ["Passenger and Baggage", 10, 10],
+    ["Visa and Travel Document", 10, 10]
+  ]},
+  { name: "Anupong Sirikhett", subjects: [
+    ["Aircraft Ground Movement", 10, 10],
+    ["Aircraft Handling and Loading", 10, 10],
+    ["Aircraft Loading Supervision", 10, 10],
+    ["Airside Driver", 10, 10],
+    ["Airside Safety", 10, 10],
+    ["GSE Operations Group A", 10, 10],
+    ["Orientation and excellent services", 10, 11],
+    ["GSE Operations Group B", 10, 10],
+    ["GSE Operations Group C", 10, 10]
+  ]},
+  { name: "Prakasit Boonsong", subjects: [
+    ["Aircraft Cleaning", 10, 10]
+  ]},
+  { name: "Athiphat Thavaranurak", subjects: [
+    ["GSE Operations Group A", "", ""],
+    ["GSE Operations Group B", "", ""],
+    ["GSE Operations Group C", "", ""]
+  ]},
+  { name: "Apichart Phromsuk", subjects: [
+    ["GSE Operations Group A", 6, 6],
+    ["GSE Operations Group B", 6, 6],
+    ["GSE Operations Group C", 6, 6]
+  ]},
+  { name: "Nattapong Wattanasit", subjects: [
+    ["GSE Operations Group A", 12, 12],
+    ["GSE Operations Group B", 12, 12],
+    ["GSE Operations Group C", 12, 12]
+  ]},
+  { name: "Nathakrit Pantun", subjects: [
+    ["GSE Operations Group A", 13, 9],
+    ["GSE Operations Group B", 13, 9],
+    ["GSE Operations Group C", 13, 9]
+  ]},
+  { name: "Pipath Taraworakul", subjects: [
+    ["GSE Operations Group A", 17, 17],
+    ["GSE Operations Group B", 17, 17],
+    ["GSE Operations Group C", 17, 17]
+  ]},
+  { name: "Wisit Thongpan", subjects: [
+    ["GSE Operations Group A", 15, 15],
+    ["GSE Operations Group B", 15, 15],
+    ["GSE Operations Group C", 15, 15]
+  ]},
+  { name: "Yodchai Leeman", subjects: [
+    ["GSE Operations Group A", 13, 13],
+    ["GSE Operations Group B", 13, 13],
+    ["GSE Operations Group C", 13, 13]
+  ]},
+  { name: "Yongyuth Jeetom", subjects: [
+    ["GSE Operations Group A", 24, 24],
+    ["GSE Operations Group B", 24, 24],
+    ["GSE Operations Group C", 24, 24]
+  ]},
+  { name: "Pichitpol Wongchai", subjects: [
+    ["GSE Operations Group A", 9, 9],
+    ["GSE Operations Group B", 9, 9],
+    ["GSE Operations Group C", 9, 9]
+  ]},
+  { name: "Marut Artmat", subjects: [
+    ["GSE Operations Group A", 12, 12],
+    ["GSE Operations Group B", 12, 12],
+    ["GSE Operations Group C", 12, 14]
+  ]},
+  { name: "Kasidis Suddee", subjects: [
+    ["GSE Operations Group A", 13, 13],
+    ["GSE Operations Group B", 13, 14],
+    ["GSE Operations Group C", 13, 15]
+  ]},
+  { name: "Kanok Surawattana", subjects: [
+    ["Turnaround Coordination", 32, 32],
+    ["Load Control Procedure/ Basic Load Control", 32, 32],
+    ["Supervision and Oversight", 32, 26]
+  ]},
+  { name: "Narupon Makongsuk", subjects: [
+    ["Turnaround Coordination", 19, 19]
+  ]},
+  { name: "Chanoknart Udomyingcharoen", subjects: [
+    ["Turnaround Coordination", 5, 4]
+  ]},
+  { name: "Autsnee Nualanong", subjects: [
+    ["Turnaround Coordination", 11, 11]
+  ]},
+  { name: "Kayoon Soising", subjects: [
+    ["Load Control Procedure/ Basic Load Control", 17, 8]
+  ]},
+  { name: "Warachinee Saengkhao", subjects: [
+    ["Air Ticketing and Reservation", 9, 9]
+  ]},
+  { name: "Thanawat Ponsut", subjects: [
+    ["Air Ticketing and Reservation", 7, 7]
+  ]},
+  { name: "Sudawan Khunna", subjects: [
+    ["Air Ticketing and Reservation", 18, 18]
+  ]},
+  { name: "Teerawat Koolkaew", subjects: [
+    ["Check-In Systems", 10, 10],
+    ["Aviation Basics", 6, 6]
+  ]},
+  { name: "Thanatorn Klinpayorm", subjects: [
+    ["Airside Safety", 4, 4],
+    ["Safety Management System", 4, 4],
+    ["Ground Occurrence Investigation", 4, 3]
+  ]},
+  { name: "Anuparp Vipatawana", subjects: [
+    ["Aviation Security Awareness/In-Flight Security for Flight Crew", 12, 12],
+    ["Aviation Security Awareness for Non-Security", 12, 12]
+  ]},
+  { name: "Piyapong Yasoongnern", subjects: [
+    ["Aviation Security Awareness for Security Personnel", 13, 13]
+  ]},
+  { name: "Khamin Punyafong", subjects: [
+    ["Safety Management System for Management", 19, 19],
+    ["Airside Safety", "", ""],
+    ["Safety Management System", 19, 19]
+  ]},
+  { name: "Somsup Wongkaew", subjects: [
+    ["GSE Workshop Management", 11, ""],
+    ["GSE Routine Maintenance and Repairs", 11, ""],
+    ["GSE Complex Maintenance, Diagnostics And Repairs", 11, ""]
+  ]},
+  { name: "Boonlux Sawatanupap", subjects: [
+    ["Aircraft General Familiarization Airbus A330", 16, 12],
+    ["Aircraft General Familiarization Boeing B737-600-700-800-900", 16, 16],
+    ["Aircraft Material Receiving and Inspection Techniques", 16, 16]
+  ]},
+  { name: "Nunchanok Hantaku", subjects: [
+    ["Aviation Legislation TCAR 8 Part 145", 13, 4],
+    ["Document Control System in Aviations", 13, 13],
+    ["Lead Auditor", 13, 12],
+    ["Quality Management System and Internal Auditor", 13, 13],
+    ["Root Cause Analysis", 13, 13],
+    ["Continue Airworthiness Management Organization", 13, 13],
+    ["Dangerous Goods for Preparing Dangerous Consignments 7.1", 13, 4],
+    ["Dangerous Goods Regulations for Ramp Operations (Role G)", 13, 4],
+    ["Dangerous Goods Regulations for Passenger Services (Role H)", 13, 4],
+    ["Dangerous Goods Regulations for Load Control (Role I)", 13, 4],
+    ["Dangerous Goods Regulations for Oversight Staffs (Role N)", 13, 4],
+    ["Dangerous Goods Regulations for General Task (Role O)", 13, 4],
+    ["Dangerous Goods for General Awareness (Role P)", 13, 4],
+    ["Dangerous Goods Regulations for Flight Crew (Role J)", 13, 4],
+    ["Dangerous Goods Regulations for Flight Operations (Role K)", 13, 4],
+    ["Dangerous Goods for Accepting General Cargo (Role E)", 13, 4]
+  ]},
+  { name: "Panisa Rinnasak", subjects: [
+    ["Continue Airworthiness Management Organization", 7, 7]
+  ]},
+  { name: "Anupong Ruansa-ard", subjects: [
+    ["Human Factors for Aviation", 50, 50],
+    ["Human Factors for Maintenance", 50, 50],
+    ["Safety Management System for Aviation", 50, 50],
+    ["Safety Management System", 50, 50],
+    ["Aircraft De-Icing and Anti-Icing", 50, 50],
+    ["Aircraft General Familiarization Airbus A319-320-321", 50, 50],
+    ["Aircraft General Familiarization Airbus A330", 50, 50],
+    ["Aircraft General Familiarization Airbus A350", 50, 50],
+    ["Aircraft General Familiarization Boeing B777", 50, 50],
+    ["Aircraft Material Receiving and Inspection Techniques", 50, 50],
+    ["Aircraft Inspection Techniques", 50, 50],
+    ["Electrical Wiring Interconnection System Group 1-2 (EWIS)", 50, 50],
+    ["Electrical Wiring Interconnection System Group 4-5 (EWIS)", 50, 50],
+    ["Fuel Tank Safety (FTS)", 50, 50],
+    ["Special Operations and ETOPS/EDTO (2 Days)", 50, 50]
+  ]},
+  { name: "Chairat Srivilas", subjects: [
+    ["Cockpit Voice Recorder Readout and Inspection for Serviceability", 9, 9],
+    ["Flight Data Recorder Readout and Inspection for Serviceability", 36, 36]
+  ]},
+  { name: "Pithan Bholnivas", subjects: [
+    ["Aviation Legislation TCAR 8 Part 145", 39, 39],
+    ["Human Factors for Maintenance", 39, 39],
+    ["Safety Management System for Aviation", 13, 13],
+    ["Aircraft Inspection Techniques", 20, 20],
+    ["Aircraft Reliability and Implementation", 25, 25],
+    ["Fuel Tank Safety (FTS)", 39, 39],
+    ["Special Operations and ETOPS/EDTO (2 Days)", 39, 39],
+    ["Lead Auditor", 39, 39],
+    ["Quality Management System and Internal Auditor", 13, 13],
+    ["Human Factors for Aviation", 39, 4],
+    ["Aircraft General Familiarization Boeing B777", 36, 36]
+  ]},
+  { name: "Pitsanu Janjamsai", subjects: [
+    ["Aircraft General Familiarization Boeing B737-600-700-800-900", 42, 36],
+    ["Electrical Wiring Interconnection System Group 1-2 (EWIS)", 42, 13],
+    ["Electrical Wiring Interconnection System Group 4-5 (EWIS)", 42, 13]
+  ]},
+  { name: "Paitoon Prajumwong", subjects: [
+    ["Special Operations for Aircraft Maintenance", 36, 36]
+  ]},
+  { name: "Sukhum Naksangthong", subjects: [
+    ["Special Operations for Aircraft Maintenance", 36, 36]
+  ]},
+  { name: "Yuthana Intanai", subjects: [
+    ["Special Operations for Aircraft Maintenance", 41, 41],
+    ["Aircraft Reliability and Implementation", 41, 41]
+  ]},
+  { name: "Kitipol Kanyakam", subjects: [
+    ["Safety Officer Supervisory Level (จป.หัวหน้างาน)", 11, 11],
+    ["Safety Officer Management Level (จป.บริหาร)", 11, 11],
+    ["Occupational Safety and Health Committee (คปอ.)", 29, 29]
+  ]},
+  { name: "Tharnthong Penroach", subjects: [
+    ["Safety Officer Supervisory Level (จป.หัวหน้างาน)", 10, 10],
+    ["Safety Officer Management Level (จป.บริหาร)", 10, 10],
+    ["Occupational Safety and Health Committee (คปอ.)", 5, 5],
+    ["Aircraft Inspection Techniques", 0, 0],
+    ["Aircraft Material Receiving and Inspection Techniques", 0, 0]
+  ]},
+  { name: "Woolrapod Rattanasupasin", subjects: [
+    ["Safety Officer Supervisory Level (จป.หัวหน้างาน)", 19, 19],
+    ["Safety Officer Management Level (จป.บริหาร)", 19, 19],
+    ["Occupational Safety and Health Committee (คปอ.)", 19, 19],
+    ["Aircraft Material Receiving and Inspection Techniques", 0, 0]
+  ]},
+  { name: "Wichit Saiyasri", subjects: [
+    ["Safety Officer Supervisory Level (จป.หัวหน้างาน)", 11, 11],
+    ["Safety Officer Management Level (จป.บริหาร)", 25, 25],
+    ["Occupational Safety and Health Committee (คปอ.)", 19, 9],
+    ["Aircraft Inspection Techniques", 14, 0],
+    ["Aircraft Material Receiving and Inspection Techniques", 14, 0]
+  ]},
+  { name: "Yossapong Imkaew", subjects: [
+    ["Aircraft De-Icing and Anti-Icing", 17, 2],
+    ["Aircraft General Familiarization for ATR 72 Series", 17, 2]
+  ]},
+  { name: "Gunthon Ainsaen", subjects: [
+    ["Aircraft De-Icing and Anti-Icing", 12, 12],
+    ["Aircraft General Familiarization for ATR 72 Series", 12, 12]
+  ]},
+  { name: "Surachet Thongchom", subjects: [
+    ["Aircraft Material Receiving and Inspection Techniques", 12, 12]
+  ]},
+  { name: "Waranon Ruaysub", subjects: [
+    ["Aircraft Reliability and Implementation", 8, 9]
+  ]},
+  { name: "Sawarot Sukkham", subjects: [
+    ["Load Control Procedure/ Basic Load Control", 13, 13],
+    ["Ramp Handling and Loading", 12, 12]
+  ]},
+  { name: "Artit Duangchatom", subjects: [
+    ["Load Control Procedure/ Basic Load Control", "", ""],
+    ["Ramp Handling and Loading", "", ""]
+  ]},
+  { name: "Sakdina Laoryingkamol", subjects: [
+    ["Ground Operations Procedure", 3, 8]
+  ]},
+  { name: "Pongsathorn Sangasang", subjects: [
+    ["Ground Operations Procedure", 14, 14],
+    ["Dangerous Goods Regulations for General Task (Role O)", 14, 14],
+    ["Dangerous Goods Regulations for Flight Crew (Role J)", 14, 14],
+    ["Dangerous Goods Regulations for Flight Operations (Role K)", 14, 14],
+    ["Dangerous Goods Regulations for Load Control (Role I)", 14, 14],
+    ["Dangerous Goods Regulations for Ramp Operations (Role G)", 14, 14],
+    ["Dangerous Goods for Accepting General Cargo (Role E)", 14, 14]
+  ]},
+  { name: "Pacharaporn Yimruan", subjects: [
+    ["Ground Operations Procedure", 10, 10],
+    ["Dangerous Goods Regulations for Flight Crew (Role J)", 10, 3],
+    ["Dangerous Goods Regulations for Flight Operations (Role K)", 10, 3],
+    ["Dangerous Goods Regulations for Load Control (Role I)", 10, 3],
+    ["Dangerous Goods Regulations for Ramp Operations (Role G)", 10, 3],
+    ["Dangerous Goods for Accepting General Cargo (Role E)", 10, 3],
+    ["Dangerous Goods Regulations for General Task (Role O)", 10, 3]
+  ]},
+  { name: "Natthapat Thammarithwat", subjects: [
+    ["Aircraft Handling Procedures", 10, 10],
+    ["Weight and Balance", 10, 10]
+  ]},
+  { name: "Napassawan Pluwan", subjects: [
+    ["Internal Auditor (GEN11)", 9, 9],
+    ["Dangerous Goods for Processing and Accepting DG Consignment 7.3", 9, 7],
+    ["Dangerous Goods Regulations for Ramp Operations (Role G)", 9, 7],
+    ["Dangerous Goods Regulations for Passenger Services (Role H)", 9, 7],
+    ["Dangerous Goods Regulations for Oversight Staffs (Role N)", 9, 7],
+    ["Dangerous Goods Regulations for General Task (Role O)", 9, 7],
+    ["Dangerous Goods for General Awareness (Role P)", 9, 7],
+    ["Dangerous Goods Regulations for Flight Crew (Role J)", 9, 7],
+    ["Dangerous Goods Regulations for Flight Operations (Role K)", 9, 7],
+    ["Dangerous Goods for Accepting General Cargo (Role E)", 9, 7]
+  ]},
+  { name: "Suchat Yammongkol", subjects: [
+    ["Aircraft Cleaning", 31, 31]
+  ]},
+  { name: "Chayanan Yenying", subjects: [
+    ["Aviation Basics", 29, 29]
+  ]},
+  { name: "Dusdee Pue-onn", subjects: [
+    ["Aviation Basics", 40, 40],
+    ["Check-In Systems", 40, 14]
+  ]},
+  { name: "Sirasit Isarangkul Na Ayudthaya", subjects: [
+    ["Lounge Service", "", ""]
+  ]},
+  { name: "Churat Treyangkul", subjects: [
+    ["Lounge Service", 2, 2],
+    ["Grooming and Personality", 36, 36]
+  ]},
+  { name: "Pakornyots Chainakorn", subjects: [
+    ["Grooming and Personality", "", ""]
+  ]},
+  { name: "Sutach Emmarat", subjects: [
+    ["Grooming and Personality", 21, 22]
+  ]},
+  { name: "Thanyaporn Vasharakorn", subjects: [
+    ["Lounge Service", 13, 2],
+    ["Grooming and Personality", 13, 13]
+  ]},
+  { name: "Kittiphong Phongpraphat", subjects: [
+    ["Special Operations and ETOPS/EDTO (2 Days)", 17, 3]
+  ]},
+  { name: "Keerati Sadeedej", subjects: [
+    ["Aircraft Reliability and Implementation", 11, 10]
+  ]},
+  { name: "Wuttinun Khumphet", subjects: [
+    ["Aviation Security Awareness for Security Personnel", 12, 3],
+    ["Aviation Security Screener", 21, 11]
+  ]},
+  { name: "Natthaphong Pongsatornwiwat", subjects: [
+    ["Grooming and Personality", 12, 12]
+  ]},
+  { name: "Parikarn Muentrai", subjects: [
+    ["Aircraft General Familiarization Boeing B737-600-700-800-900", 17, 11]
+  ]},
+  { name: "Sirin Kot-rat", subjects: [
+    ["Grooming and Personality", 12, 12]
+  ]},
+  { name: "Chonticha Javakijkarnjanakul", subjects: [
+    ["Grooming and Personality", 19, 19],
+    ["Baggage Service (WorldTracer)", 19, 5]
+  ]},
+  { name: "Sorasak Jomfong", subjects: [
+    ["Check-In Systems", 9, 9]
+  ]}
+];
+
+const DEFAULT_DATA = RAW_DATA.map(p => ({
+  name: p.name,
+  subjects: p.subjects.map(([title, aviation, specific]) => ({ title, aviation, specific }))
+}));
+
+const STORAGE_KEY = "instructor_profiles_v7";
+let data = load();
+let editIndex = null;
+const openSet = new Set();   // ชื่อ instructor ที่เปิดอยู่
+
+function load(){
+  try{
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(saved) return JSON.parse(saved);
+  }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_DATA));
+}
+function persist(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+}
+function esc(s){
+  return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function yrs(v){ return (v === "" || v == null) ? "-" : esc(v) + " ปี"; }
+function maxAviation(it){
+  const valid = it.subjects.filter(s => s.aviation !== "" && s.aviation != null).map(s => Number(s.aviation));
+  return valid.length ? Math.max(...valid) : "";
+}
+
+/* ---------- ฟอร์ม ---------- */
+function addSubjectRow(title = "", aviation = "", specific = ""){
+  const wrap = document.getElementById("subjectInputs");
+  const row = document.createElement("div");
+  row.className = "subj-row";
+  row.innerHTML = `
+    <input class="s-title" placeholder="ชื่อวิชา" value="${esc(title)}">
+    <input class="s-av" type="number" min="0" placeholder="Aviation" value="${esc(aviation)}">
+    <input class="s-sp" type="number" min="0" placeholder="Specific" value="${esc(specific)}">
+    <button class="btn-x" type="button" title="ลบวิชา">✕</button>`;
+  row.querySelector("button").onclick = () => row.remove();
+  wrap.appendChild(row);
+}
+
+function resetForm(){
+  editIndex = null;
+  document.getElementById("formTitle").textContent = "+ เพิ่ม Instructor";
+  document.getElementById("name").value = "";
+  document.getElementById("aviation").value = "";
+  document.getElementById("subjectInputs").innerHTML = "";
+  addSubjectRow();
+}
+
+function saveInstructor(){
+  const name = document.getElementById("name").value.trim();
+  const defAv = document.getElementById("aviation").value.trim();
+  const subjects = [...document.querySelectorAll("#subjectInputs .subj-row")]
+    .map(r => ({
+      title: r.querySelector(".s-title").value.trim(),
+      aviation: r.querySelector(".s-av").value.trim() || defAv,
+      specific: r.querySelector(".s-sp").value.trim()
+    }))
+    .filter(s => s.title);
+
+  if(!name){ alert("กรุณาใส่ชื่อ Instructor"); return; }
+
+  const item = { name, subjects };
+  if(editIndex === null) data.push(item);
+  else data[editIndex] = item;
+
+  persist();
+  openSet.add(name);
+  resetForm();
+  document.getElementById("formPanel").open = false;
+  render();
+}
+
+function editInstructor(i){
+  const it = data[i];
+  editIndex = i;
+  const panel = document.getElementById("formPanel");
+  panel.open = true;
+  document.getElementById("formTitle").textContent = "แก้ไข Instructor: " + it.name;
+  document.getElementById("name").value = it.name;
+  document.getElementById("aviation").value = maxAviation(it);
+  document.getElementById("subjectInputs").innerHTML = "";
+  (it.subjects.length ? it.subjects : [{title:"",aviation:"",specific:""}])
+    .forEach(s => addSubjectRow(s.title, s.aviation, s.specific));
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function deleteInstructor(i){
+  if(!confirm(`ลบ "${data[i].name}" ?`)) return;
+  openSet.delete(data[i].name);
+  data.splice(i, 1);
+  persist();
+  render();
+}
+
+/* ---------- เปิด / ปิด ---------- */
+function toggleCard(i){
+  const name = data[i].name;
+  openSet.has(name) ? openSet.delete(name) : openSet.add(name);
+  render();
+}
+function toggleAll(open){
+  openSet.clear();
+  if(open) data.forEach(it => openSet.add(it.name));
+  render();
+}
+
+/* สัญลักษณ์ DG — ขึ้นข้างชื่อคนที่สอนวิชา Dangerous Goods */
+const DG_ICON = `
+  <span class="dg" title="Dangerous Goods Instructor">
+    <svg viewBox="0 0 40 40" aria-label="Dangerous Goods">
+      <rect x="8" y="8" width="24" height="24" rx="2" transform="rotate(45 20 20)"
+            fill="#ffffff" stroke="#d62828" stroke-width="3"/>
+      <rect x="11.5" y="11.5" width="17" height="17" rx="1" transform="rotate(45 20 20)"
+            fill="#d62828"/>
+      <text x="20" y="23.5" text-anchor="middle" font-size="9.5" font-weight="700"
+            font-family="Arial, sans-serif" fill="#ffffff">DG</text>
+    </svg>
+  </span>`;
+
+/* ==========================================================
+   หมวดวิชา — จัดหมวดอัตโนมัติจากคำในชื่อวิชา
+   (วิชาหนึ่งอยู่ได้หลายหมวด เช่น Human Factors for Maintenance)
+   เพิ่ม / แก้หมวดได้ที่นี่
+   ========================================================== */
+const CATEGORIES = [
+  { id: "dg",     label: "Dangerous Goods",       test: /dangerous goods/i },
+  { id: "sec",    label: "Aviation Security",     test: /security|screener/i },
+  { id: "safety", label: "Safety",                test: /safety|occupational|emergency|occurrence|จป\.|คปอ\./i },
+  { id: "hf",     label: "Human Factors",         test: /human factors/i },
+  { id: "qa",     label: "Quality & Regulation",  test: /audit|quality|document control|root cause|supervision and oversight|legislation|airworthiness/i },
+  { id: "mx",     label: "Aircraft Maintenance",  test: /familiarization|wiring|fuel tank|inspection techniques|reliability|de-icing|recorder|aircraft maintenance|human factors for maintenance|special operations/i },
+  { id: "gse",    label: "GSE",                   test: /\bGSE\b/ },
+  { id: "ground", label: "Ground & Ramp",         test: /ramp handling|load control procedure|turnaround|ground operations|aircraft handling|aircraft loading|airside driver|ground movement|weight and balance|aircraft cleaning|cargo handling/i },
+  { id: "pax",    label: "Passenger Services",    test: /passenger and baggage|visa|check-in|ticketing|lounge|grooming|wheelchair|baggage service|orientation/i },
+  { id: "gen",    label: "General",               test: /aviation basics|first aid/i }
+];
+function catsOf(title){
+  const ids = CATEGORIES.filter(c => c.test.test(title)).map(c => c.id);
+  return ids.length ? ids : ["other"];
+}
+
+const filters = { cat: "all", subject: "", minYears: "" };
+
+function setCat(id){
+  filters.cat = id;
+  filters.subject = "";       // เปลี่ยนหมวดแล้วล้างวิชาที่เลือกไว้
+  render();
+}
+function clearFilters(){
+  filters.cat = "all"; filters.subject = ""; filters.minYears = "";
+  document.getElementById("search").value = "";
+  document.getElementById("yearSelect").value = "";
+  render();
+}
+
+function catOk(s){ return filters.cat === "all" || catsOf(s.title).includes(filters.cat); }
+function subjectFilterOk(s){
+  if(!catOk(s)) return false;
+  if(filters.subject && s.title !== filters.subject) return false;
+  if(filters.minYears !== ""){
+    if(s.specific === "" || s.specific == null) return false;
+    if(Number(s.specific) < Number(filters.minYears)) return false;
+  }
+  return true;
+}
+
+function renderFilterControls(){
+  // ปุ่มหมวด + จำนวน instructor ในแต่ละหมวด
+  const countFor = id => data.filter(it =>
+    it.subjects.some(s => id === "all" || catsOf(s.title).includes(id))).length;
+  const allCats = [{ id: "all", label: "ทั้งหมด" }, ...CATEGORIES];
+  if(data.some(it => it.subjects.some(s => catsOf(s.title).includes("other"))))
+    allCats.push({ id: "other", label: "อื่นๆ" });
+
+  document.getElementById("catChips").innerHTML = allCats.map(c => `
+    <button type="button" class="chip ${filters.cat === c.id ? "active" : ""}" onclick="setCat('${c.id}')">
+      ${esc(c.label)} <span class="n">${countFor(c.id)}</span>
+    </button>`).join("");
+
+  // dropdown วิชา — แสดงเฉพาะวิชาในหมวดที่เลือก
+  const titles = {};
+  data.forEach(it => it.subjects.forEach(s => {
+    if(catOk(s)) titles[s.title] = (titles[s.title] || 0) + 1;
+  }));
+  const sorted = Object.keys(titles).sort((a, b) => a.localeCompare(b));
+  if(filters.subject && !titles[filters.subject]) filters.subject = "";
+  document.getElementById("subjectSelect").innerHTML =
+    `<option value="">ทุกวิชา (${sorted.length})</option>` +
+    sorted.map(t => `<option value="${esc(t)}" ${t === filters.subject ? "selected" : ""}>${esc(t)} (${titles[t]})</option>`).join("");
+}
+
+/* ---------- แสดงผล ---------- */
+function render(){
+  renderFilterControls();
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const list = document.getElementById("list");
+  const filterOn = filters.cat !== "all" || filters.subject !== "" || filters.minYears !== "";
+
+  // วิชาที่ตรงทั้งตัวกรองและคำค้น
+  const matchSubject = (it, s) => {
+    if(!subjectFilterOk(s)) return false;
+    if(!q || it.name.toLowerCase().includes(q)) return true;
+    return s.title.toLowerCase().includes(q);
+  };
+
+  const items = data
+    .map((it, i) => ({ it, i }))
+    .filter(({ it }) => {
+      if(!filterOn && !q) return true;
+      if(!filterOn && it.name.toLowerCase().includes(q)) return true;
+      return it.subjects.some(s => matchSubject(it, s));
+    });
+
+  const totalSubjects = items.reduce((n, { it }) =>
+    n + ((filterOn || q) ? it.subjects.filter(s => matchSubject(it, s)).length : it.subjects.length), 0);
+  document.getElementById("count").textContent =
+    `${items.length} Instructor · ${totalSubjects} รายวิชา${(filterOn || q) ? " ที่ตรงเงื่อนไข" : ""}`;
+
+  if(!items.length){
+    list.innerHTML = `<div class="empty">ไม่พบ Instructor ที่ตรงกับตัวกรอง</div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(({ it, i }) => {
+    const nameHit = q && it.name.toLowerCase().includes(q);
+    const narrowing = filterOn || (q && !nameHit);   // กำลังกรองระดับวิชาอยู่
+    const isOpen = openSet.has(it.name) || narrowing;
+    const av = maxAviation(it);
+    const isDG = it.subjects.some(s => /dangerous goods/i.test(s.title));
+    return `
+    <article class="card ${isOpen ? "open" : ""}">
+      <button class="card-head" type="button" onclick="toggleCard(${i})" aria-expanded="${isOpen}">
+        <div class="avatar">${esc(it.name.trim().charAt(0).toUpperCase())}</div>
+        <div class="head-text">
+          <h3>${esc(it.name)}${isDG ? DG_ICON : ""}</h3>
+          <div class="badges">
+            <span class="badge exp">Aviation Field ${yrs(av)}</span>
+            <span class="badge num">${it.subjects.length} วิชา</span>
+          </div>
+        </div>
+        <span class="chev">▾</span>
+      </button>
+      <div class="subjects">
+        <div class="title">วิชาที่สอน</div>
+        ${it.subjects.length
+          ? it.subjects.map(s => {
+              const ok = matchSubject(it, s);
+              const cls = narrowing ? (ok ? "hit" : "dim") : "";
+              return `
+              <div class="subject-box ${cls}">
+                <div class="name">${esc(s.title)}</div>
+                <div class="meta">
+                  <span>Aviation Field: <b>${yrs(s.aviation)}</b></span>
+                  <span>Specific Field: <b>${yrs(s.specific)}</b></span>
+                </div>
+              </div>`;
+            }).join("")
+          : `<div class="hint">ยังไม่ได้ระบุวิชา</div>`}
+        <div class="card-foot">
+          <button class="btn-ghost" onclick="editInstructor(${i})">แก้ไข</button>
+          <button class="btn-danger" onclick="deleteInstructor(${i})">ลบ</button>
+        </div>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+/* ---------- Export / Import ---------- */
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "instructors.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importJSON(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!Array.isArray(parsed)) throw 0;
+      data = parsed;
+      persist();
+      render();
+    }catch(err){ alert("ไฟล์ JSON ไม่ถูกต้อง"); }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+}
+
+resetForm();
+render();
+</script>
+</body>
+</html>
